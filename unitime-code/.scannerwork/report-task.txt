@@ -1,0 +1,6 @@
+projectKey=unitime-code
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=unitime-code
+ceTaskId=d22d3974-55f8-4f82-9ce2-35184bdd5f92
+ceTaskUrl=http://localhost:9000/api/ce/task?id=d22d3974-55f8-4f82-9ce2-35184bdd5f92
