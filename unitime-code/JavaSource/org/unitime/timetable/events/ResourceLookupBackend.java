@@ -155,6 +155,7 @@ public class ResourceLookupBackend extends EventAction<ResourceLookupRpcRequest,
 						ret.setName(subject.getTitle());
 						return ret;
 					}
+					throw new GwtRpcException("subject not found: " + name);
 				case COURSE:
 					List<CourseOffering> courses = hibSession.createQuery("select c from CourseOffering c inner join c.subjectArea s where s.session.uniqueId = :sessionId and " +
 							"lower(s.subjectAreaAbbreviation || ' ' || c.courseNbr) = :name and c.instructionalOffering.notOffered = false",

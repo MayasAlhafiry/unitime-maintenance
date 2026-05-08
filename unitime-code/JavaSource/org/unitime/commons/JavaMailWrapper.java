@@ -51,6 +51,7 @@ public class JavaMailWrapper extends Email {
 	protected jakarta.mail.Session iMailSession = null;
 	protected MimeMessage iMail = null;
 	protected Multipart iBody = null;
+	private static final String UTF8 = "UTF-8";
 	
 	public JavaMailWrapper() {
         Properties p = ApplicationProperties.getProperties();
@@ -79,19 +80,19 @@ public class JavaMailWrapper extends Email {
 	
 	@Override
 	public void setSubject(String subject) throws MessagingException {
-		iMail.setSubject(subject, "UTF-8");
+		iMail.setSubject(subject, UTF8);
 	}
 	
 	@Override
 	public void setFrom(String email, String name) throws MessagingException, UnsupportedEncodingException {
 		if (email != null)
-			iMail.setFrom(new InternetAddress(email, name, "UTF-8"));
+			iMail.setFrom(new InternetAddress(email, name, UTF8));
 	}
 
 	@Override
 	public void setReplyTo(String email, String name) throws UnsupportedEncodingException, MessagingException {
 		if (email != null)
-			iMail.setReplyTo(new InternetAddress[] {new InternetAddress(email, name, "UTF-8")});
+			iMail.setReplyTo(new InternetAddress[] {new InternetAddress(email, name, UTF8)});
 	}
 	
 	@Override
@@ -99,17 +100,17 @@ public class JavaMailWrapper extends Email {
 		if (email == null || email.isEmpty()) return;
 		Address[] replyTo = iMail.getReplyTo();
 		if (replyTo == null || replyTo.length == 0) {
-			iMail.setReplyTo(new InternetAddress[] {new InternetAddress(email, name, "UTF-8")});
+			iMail.setReplyTo(new InternetAddress[] {new InternetAddress(email, name, UTF8)});
 		} else {
 			Address[] newReplyTo = new Address[replyTo.length + 1];
 			for (int i = 0; i < replyTo.length; i++) newReplyTo[i] = replyTo[i];
-			newReplyTo[replyTo.length] = new InternetAddress(email, name, "UTF-8");
+			newReplyTo[replyTo.length] = new InternetAddress(email, name, UTF8);
 			iMail.setReplyTo(newReplyTo);
 		}
 	}
 	
 	protected void addRecipient(RecipientType type, String email, String name) throws UnsupportedEncodingException, MessagingException {
-		iMail.addRecipient(type, new InternetAddress(email, name, "UTF-8"));
+		iMail.addRecipient(type, new InternetAddress(email, name, UTF8));
 	}
 	
 	@Override
