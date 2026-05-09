@@ -15,8 +15,8 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
-*/
+ *
+ */
 package org.unitime.commons;
 
 import java.util.Collection;
@@ -28,22 +28,22 @@ import java.util.Comparator;
 public class MultiComparable implements Comparable<MultiComparable>{
     private Comparable[] iCmp;
     private Comparator iStringCmp = new NaturalOrderComparator();
-    
+
     public MultiComparable(Comparable[] cmp) {
         iCmp = cmp;
     }
-    
+
     public MultiComparable(Collection cmp) {
         iCmp = new Comparable[cmp.size()];
         int idx = 0;
         for (Object c : cmp)
             iCmp[idx++] = (Comparable)c;
     }
-    
+
     public MultiComparable(Comparable a) {
         iCmp = new Comparable[] {a};
     }
-    
+
     public MultiComparable(Comparable a, Comparable b) {
         iCmp = new Comparable[] {a, b};
     }
@@ -59,7 +59,7 @@ public class MultiComparable implements Comparable<MultiComparable>{
     public MultiComparable(Comparable a, Comparable b, Comparable c, Comparable d, Comparable e) {
         iCmp = new Comparable[] {a, b, c, d, e};
     }
-    
+
     public MultiComparable(Comparable a, Comparable b, Comparable c, Comparable d, Comparable e, Comparable f) {
         iCmp = new Comparable[] {a, b, c, d, e, f};
     }
@@ -86,6 +86,16 @@ public class MultiComparable implements Comparable<MultiComparable>{
         if (iCmp.length<mc.iCmp.length) return -1;
         return 0;
     }
-    
+    // we added the equals function to override the object one so that it compares content as we are not comparing memory addresses
+    //a.compareTo(b) == 0  will be  a.equals(b) == true
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MultiComparable) {
+            MultiComparable other = (MultiComparable) obj;
+            return this.compareTo(other) == 0;
+        }
+        return false;
+    }
+
     public Comparable[] getContent() { return iCmp; }
 }

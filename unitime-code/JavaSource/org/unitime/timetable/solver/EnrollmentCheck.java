@@ -93,42 +93,76 @@ public class EnrollmentCheck {
     		ret += (ret.isEmpty() ? "" : ", ") + s.getId();
     	return ret;
     }
-    
+
+    // a new method to extract the student counting
+    private double calculateJenrl(Lecture l1, Lecture l2, List<Student> jenrlStudents) {
+        double jenrl = 0;
+        jenrlStudents.clear();
+
+        for (Student student : l1.students()) {
+            if (l2.students().contains(student)) {
+                jenrl += student.getJenrlWeight(l1, l2);
+                jenrlStudents.add(student);
+            }
+        }
+        return jenrl;
+    }
+    // a new method for the constraint checking logic
+    private void checkExistingConstraint(Lecture l1, Lecture l2, double jenrl, List<Student> jenrlStudents, Progress p) {
+        boolean found = false;
+
+        for (JenrlConstraint j : iModel.getJenrlConstraints()) {
+            Lecture a = (Lecture) j.first();
+            Lecture b = (Lecture) j.second();
+
+            if ((a.equals(l1) && b.equals(l2)) || (a.equals(l2) && b.equals(l1))) {
+                found = true;
+                int expectedJenrl = (int) Math.ceil(jenrl);
+
+                if (j.getJenrl() != expectedJenrl) {
+                    p.error(MSG.warnWrongJenrl(
+                            getClassLabel(l1), getClassLabel(l2),
+                            j.getJenrl(), (long) expectedJenrl,
+                            toString(l1.students()), toString(l2.students()),
+                            toString(jenrlStudents)
+                    ));
+                }
+                break;
+            }
+        }
+
+        if (!found && jenrl > 0) {
+            p.error(MSG.warnMissingJenrl(
+                    getClassLabel(l1), getClassLabel(l2),
+                    Math.round(jenrl),
+                    toString(l1.students()), toString(l2.students()),
+                    toString(jenrlStudents)
+            ));
+        }
+    }
+
     /** Check validity of JENRL constraints from student enrollments */
     public void checkJenrl(Progress p) {
         try {
-            p.setPhase(MSG.phaseCheckingJenrl(),iModel.variables().size());
-            for (Lecture l1: iModel.variables()) {
+            p.setPhase(MSG.phaseCheckingJenrl(), iModel.variables().size());
+
+            for (Lecture l1 : iModel.variables()) {
                 p.incProgress();
-                p.debug("Checking "+l1.getName()+" ...");
-                for (Lecture l2: iModel.variables()) {
-                    if (l1.getId()<l2.getId()) {
-                        double jenrl = 0;
-                        List<Student> jenrlStudents = new ArrayList<Student>();
-                        for (Iterator i3=l1.students().iterator(); i3.hasNext(); ) {
-                            Student student = (Student)i3.next();
-                            if (l2.students().contains(student)) {
-                                jenrl+=student.getJenrlWeight(l1,l2);
-                                jenrlStudents.add(student);
-                            }
-                        }
-                        boolean found = false;
-                        for (JenrlConstraint j: iModel.getJenrlConstraints()) {
-                            Lecture a=(Lecture)j.first();
-                            Lecture b=(Lecture)j.second();
-                            if ((a.equals(l1) && b.equals(l2)) || (a.equals(l2) && b.equals(l1))) {
-                                found = true;
-                                if (j.getJenrl()!=(int)Math.ceil(jenrl)) {
-                                    p.error(MSG.warnWrongJenrl(getClassLabel(l1), getClassLabel(l2), j.getJenrl(), (long)Math.ceil(jenrl), toString(l1.students()), toString(l2.students()), toString(jenrlStudents)));
-                                }
-                            }
-                        }
-                        if (!found && jenrl>0) {
-                            p.error(MSG.warnMissingJenrl(getClassLabel(l1), getClassLabel(l2), Math.round(jenrl), toString(l1.students()), toString(l2.students()), toString(jenrlStudents)));
-                        }
+                p.debug("Checking " + l1.getName() + " ...");
+
+                for (Lecture l2 : iModel.variables()) {
+
+                    if (l1.getId() >= l2.getId()) {
+                        continue;
                     }
+
+                    List<Student> jenrlStudents = new ArrayList<>();
+                    double jenrl = calculateJenrl(l1, l2, jenrlStudents);
+
+                    checkExistingConstraint(l1, l2, jenrl, jenrlStudents, p);
                 }
             }
+
         } catch (Exception e) {
             p.error(MSG.warnUnexpectedException(e.getMessage()), e);
         }

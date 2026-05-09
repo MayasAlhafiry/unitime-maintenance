@@ -174,7 +174,7 @@
 			<artifactId>asm</artifactId>
 			<version>${asm.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
